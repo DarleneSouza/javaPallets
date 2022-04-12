@@ -1,19 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package javapallet;
 
-/**
- *
- * @author mefma
- */
+import java.util.*;
+import javax.swing.JOptionPane;
 public class FormSistema extends javax.swing.JFrame {
 
-    /**
-     * Creates new form FormSistema
-     */
+    Stack<Pallets> pilha = new Stack<>();
+    Stack<Pallets> paux = new Stack<>();
+    
     public FormSistema() {
         initComponents();
     }
@@ -36,7 +30,7 @@ public class FormSistema extends javax.swing.JFrame {
         listPilha = new javax.swing.JTextArea();
         txtProduto = new javax.swing.JTextField();
         txtQtd = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
+        lblTopo = new javax.swing.JLabel();
         btnRemove = new javax.swing.JButton();
         btnAdd = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
@@ -84,16 +78,26 @@ public class FormSistema extends javax.swing.JFrame {
         txtQtd.setFont(new java.awt.Font("Segoe UI Light", 0, 18)); // NOI18N
         txtQtd.setBorder(javax.swing.BorderFactory.createTitledBorder("Quantidade"));
 
-        jLabel1.setFont(new java.awt.Font("Segoe UI Black", 0, 24)); // NOI18N
-        jLabel1.setText("Topo:");
+        lblTopo.setFont(new java.awt.Font("Segoe UI Black", 0, 24)); // NOI18N
+        lblTopo.setText("Topo:");
 
         btnRemove.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnRemove.setText("Remover");
         btnRemove.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoveActionPerformed(evt);
+            }
+        });
 
         btnAdd.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnAdd.setText("Adicionar");
         btnAdd.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
 
         jLabel3.setFont(new java.awt.Font("Segoe UI Black", 0, 36)); // NOI18N
         jLabel3.setText("Sistema de Controle de Pallets");
@@ -110,7 +114,7 @@ public class FormSistema extends javax.swing.JFrame {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(64, 64, 64)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
+                            .addComponent(lblTopo)
                             .addComponent(txtProduto, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 149, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -136,7 +140,7 @@ public class FormSistema extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(jLabel3)
                 .addGap(12, 12, 12)
-                .addComponent(jLabel1)
+                .addComponent(lblTopo)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtProduto)
@@ -172,6 +176,76 @@ public class FormSistema extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    void mostra(){
+        listPilha.setText("");
+        for(Pallets p: pilha){
+            listPilha.append(p.toString()+"\n");
+            
+        }
+        if(pilha.isEmpty()){
+            lblTopo.setText("Topo: vazio " );
+        }else{
+            lblTopo.setText("Topo: " + pilha.peek(  ));
+        }
+        
+    }
+    void mostraAux(){
+        listAux.setText("");
+        for(Pallets p: paux){
+            listAux.append(p.toString()+"\n");
+        }
+    }
+    
+    void remover(Pallets p){
+        while(!pilha.empty()){
+            if(pilha.peek().getProduto().equals(p.getProduto())){
+                if(pilha.peek().getQtd()<p.getQtd()){
+                    JOptionPane.showMessageDialog(null, "quantidade da pilha insuficiente");
+                }else if(pilha.peek().getQtd()== p.getQtd()){
+                    JOptionPane.showMessageDialog(null, "retira todo " + pilha.peek().getProduto()+ "  da pilha");
+                    pilha.pop();
+                }else{
+                    JOptionPane.showMessageDialog(null, "retira " + p.getQtd() + " de " + pilha.peek().getProduto());
+                    pilha.peek().setQtd(pilha.peek().getQtd()-p.getQtd());
+                }
+                return ;
+            }else{
+                JOptionPane.showMessageDialog(null, "retira "+pilha.peek().getProduto()+" da pilha principal e coloca na pilha auxiliar");
+                paux.push(pilha.pop());
+                mostra();
+                mostraAux();
+            }
+        }
+        JOptionPane.showMessageDialog(null, "não foi encontrada na pilha");
+    }
+    void retorna(){
+        while(!paux.empty()){
+            JOptionPane.showMessageDialog(null, "retira " + paux.peek().getProduto() + " da pilha auxiliar e coloca na pilha principal");
+            pilha.push(paux.pop());
+            mostra();
+            mostraAux();
+
+        }
+    }
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        Pallets p = new Pallets();
+        p.setProduto(txtProduto.getText());
+        p.setQtd(Integer.parseInt(txtQtd.getText()) );
+        pilha.push(p);
+        System.out.println(pilha);
+        System.out.println("Topo: " + pilha.peek());
+        mostra();
+    }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
+        Pallets pallet = new Pallets();
+        pallet.setProduto(txtProduto.getText());
+        pallet.setQtd(Integer.parseInt(txtQtd.getText()));
+        remover(pallet);
+        retorna();
+        mostra();
+    }//GEN-LAST:event_btnRemoveActionPerformed
 
     /**
      * @param args the command line arguments
@@ -211,13 +285,13 @@ public class FormSistema extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnRemove;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblTopo;
     private javax.swing.JTextArea listAux;
     private javax.swing.JTextArea listPilha;
     private javax.swing.JTextField txtProduto;

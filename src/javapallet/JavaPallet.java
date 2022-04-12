@@ -7,7 +7,7 @@ package javapallet;
 
 /**
  *
- * @author mefma
+ * @author Darlene
  */
 public class JavaPallet {
 
